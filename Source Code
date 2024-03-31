@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h> 
+#include <string.h>
+
+typedef struct { 
+    char *items; 
+    int top; 
+    int size; 
+} Stack;
+
+Stack *createStack(int size) { 
+    Stack *stack = (Stack *)malloc(sizeof(Stack)); 
+    stack->items = (char *)malloc(size * sizeof(char)); 
+    stack->top = -1; 
+    stack->size = size; 
+    return stack;
+}
+
+int isEmpty(Stack *stack) { 
+    return stack->top == -1; 
+}
+
+int isFull(Stack *stack) {
+    return stack->top == stack->size - 1; 
+}
+
+void push(Stack *stack, char item) { 
+    if (!isFull(stack)) { 
+        stack->items[++stack->top] = item; 
+    } else {
+        printf("Stack penuh. Tidak bisa menambahkan elemen.\n");
+    }
+}
+
+char pop(Stack *stack) { 
+    return stack->items[stack->top--]; 
+}
+
+char isPair(char opening, char closing) { 
+    return (opening == '(' && closing == ')') || (opening == '{' && closing == '}') || (opening == '[' && closing == ']');
+}
+
+char isBalanced(char *exp) { 
+    Stack *stack = createStack(strlen(exp)); 
+    int i;
+
+    for (i = 0; exp[i]; i++) { 
+        if (exp[i] == '(' || exp[i] == '{' || exp[i] == '[') { 
+            push(stack, exp[i]); 
+        } else if (exp[i] == ')' || exp[i] == '}' || exp[i] == ']') { 
+            if (isEmpty(stack) || !isPair(pop(stack), exp[i])) { 
+                free(stack->items);
+                free(stack);
+                return 0;
+            }
+        }
+    }
+
+    int result = isEmpty(stack); 
+    free(stack->items);
+    free(stack);
+    return result;
+}
+
+int main() {
+    char expression[100];
+    printf("Masukkan set tanda kurung: ");
+    scanf("%s", expression);
+
+    for (int i = 0; expression[i]; i++) {
+        if (!strchr("(){}[]", expression[i])) { 
+            printf("Ekspresi tidak valid.\n");
+            return 0;
+        }
+    }
+
+    printf("%s\n", isBalanced(expression) ? "YES" : "NO");
+    
+    return 0;
+}
